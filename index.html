@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <title>De Chem Fabriek</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #2c3e50;
+            color: white;
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+        }
+        /* Het speelveld is hier extra hoog gemaakt (800px) */
+        .game-container {
+            background-color: #34495e;
+            width: 600px;
+            height: 800px; 
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        h1, h2 {
+            text-align: center;
+            margin: 0;
+            color: #1abc9c;
+        }
+        .sectie {
+            background-color: #2c3e50;
+            padding: 15px;
+            border-radius: 8px;
+            border: 2px solid #1abc9c;
+        }
+        button {
+            background-color: #1abc9c;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            margin: 5px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        button:hover {
+            background-color: #16a085;
+        }
+        input {
+            padding: 8px;
+            width: 80%;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <h1>De Chem Fabriek</h1>
+    
+    <div class="sectie">
+        <h2>Inventaris</h2>
+        <p><strong>Geld:</strong> €<span id="geld">100</span></p>
+        <p><strong>Grondstoffen:</strong> Waterstof (H): <span id="H">0</span> | Zuurstof (O): <span id="O">0</span> | Natrium (Na): <span id="Na">0</span> | Chloor (Cl): <span id="Cl">0</span></p>
+        <p><strong>Producten:</strong> Water (H2O): <span id="H2O">0</span> | Keukenzout (NaCl): <span id="NaCl">0</span></p>
+    </div>
+
+    <div class="sectie">
+        <h2>Winkel (Koop Grondstoffen)</h2>
+        <button onclick="koop('H', 10)">Koop H (€10)</button>
+        <button onclick="koop('O', 15)">Koop O (€15)</button>
+        <button onclick="koop('Na', 20)">Koop Na (€20)</button>
+        <button onclick="koop('Cl', 20)">Koop Cl (€20)</button>
+    </div>
+
+    <div class="sectie">
+        <h2>Chemische Mixer</h2>
+        <p>Typ de juiste scheikundige vergelijking om producten te maken.<br>
+        <em>Hints: "2H + O -> H2O" of "Na + Cl -> NaCl"</em></p>
+        <input type="text" id="reactieInput" placeholder="Bijv: 2H + O -> H2O">
+        <br>
+        <button onclick="mix()">Voer Reactie Uit!</button>
+        <p id="mixBericht" style="color: #f1c40f;"></p>
+    </div>
+
+    <div class="sectie">
+        <h2>Markt (Verkoop Producten)</h2>
+        <button onclick="verkoop('H2O', 50)">Verkoop Water (€50)</button>
+        <button onclick="verkoop('NaCl', 80)">Verkoop Keukenzout (€80)</button>
+    </div>
+</div>
+
+<script>
+    // Spel variabelen
+    let geld = 100;
+    let inv = { H: 0, O: 0, Na: 0, Cl: 0, H2O: 0, NaCl: 0 };
+
+    // Update het scherm
+    function updateUI() {
+        document.getElementById('geld').innerText = geld;
+        document.getElementById('H').innerText = inv.H;
+        document.getElementById('O').innerText = inv.O;
+        document.getElementById('Na').innerText = inv.Na;
+        document.getElementById('Cl').innerText = inv.Cl;
+        document.getElementById('H2O').innerText = inv.H2O;
+        document.getElementById('NaCl').innerText = inv.NaCl;
+    }
+
+    // Grondstoffen kopen
+    function koop(element, prijs) {
+        if (geld >= prijs) {
+            geld -= prijs;
+            inv[element]++;
+            updateUI();
+        } else {
+            alert("Niet genoeg geld!");
+        }
+    }
+
+    // Producten verkopen
+    function verkoop(product, prijs) {
+        if (inv[product] > 0) {
+            inv[product]--;
+            geld += prijs;
+            updateUI();
+        } else {
+            alert("Je hebt dit product niet!");
+        }
+    }
+
+    // Zelf een vergelijking maken
+    function mix() {
+        let input = document.getElementById('reactieInput').value;
+        // Verwijder alle spaties om makkelijker te controleren
+        let schoneInput = input.replace(/\s/g, '');
+        let bericht = document.getElementById('mixBericht');
+
+        if (schoneInput === '2H+O->H2O') {
+            if (inv.H >= 2 && inv.O >= 1) {
+                inv.H -= 2;
+                inv.O -= 1;
+                inv.H2O += 1;
+                bericht.innerText = "Succes! Je hebt Water (H2O) gemaakt.";
+            } else {
+                bericht.innerText = "Mislukt: Je hebt niet genoeg H (2 nodig) of O (1 nodig).";
+            }
+        } 
+        else if (schoneInput === 'Na+Cl->NaCl') {
+            if (inv.Na >= 1 && inv.Cl >= 1) {
+                inv.Na -= 1;
+                inv.Cl -= 1;
+                inv.NaCl += 1;
+                bericht.innerText = "Succes! Je hebt Keukenzout (NaCl) gemaakt.";
+            } else {
+                bericht.innerText = "Mislukt: Je hebt niet genoeg Na of Cl (van beide 1 nodig).";
+            }
+        } 
+        else {
+            bericht.innerText = "Ongeldige reactie! Controleer je formule en de pijl (->).";
+        }
+        updateUI();
+    }
+</script>
+
+</body>
+</html>
